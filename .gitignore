@@ -1,0 +1,13 @@
+*.log
+*.sts
+ADS7841.pdsprj.DESKTOP-U0FDG0L.paolo.workspace
+*.workspace
+*.pdsbak
+*.rte
+*.elf
+*.hex
+*.map
+*.o
+*.d
+zip
+
