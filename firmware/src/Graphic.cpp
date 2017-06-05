@@ -11,7 +11,7 @@
 
 #include "GFX.h"
 
-extern GFX * gfx;
+extern GFX<Color16Bit> * gfx;
 
 constexpr uint16_t TOP=80;
 constexpr uint16_t BOTTOM=309;
@@ -51,7 +51,7 @@ void Graphic::printLabel(Point && p, uint16_t num) {
     gfx->setFont(&smallFont);
     char buffer[10];
     itoa(num, buffer, 10);
-    gfx->drawFastVLine(Point(p.x, 309), 15, Color6Bit(128,128,128));
+    gfx->drawFastVLine(Point(p.x, 309), 15, Color16Bit(128,128,128));
     gfx->drawString(std::move(p), buffer);
 
 }

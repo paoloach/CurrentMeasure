@@ -7,25 +7,25 @@ C_SRCS += \
 ../src/_write.c 
 
 CPP_SRCS += \
+../src/ADS7841.cpp \
 ../src/BlinkLed.cpp \
 ../src/Current.cpp \
 ../src/Delay.cpp \
 ../src/GFX.cpp \
-../src/HX8367.cpp \
-../src/ILI9325.cpp \
-../src/ILI9341.cpp \
+../src/Graphic.cpp \
+../src/HX8357.cpp \
 ../src/SampleHour.cpp \
 ../src/Timer.cpp \
 ../src/main.cpp 
 
 OBJS += \
+./src/ADS7841.o \
 ./src/BlinkLed.o \
 ./src/Current.o \
 ./src/Delay.o \
 ./src/GFX.o \
-./src/HX8367.o \
-./src/ILI9325.o \
-./src/ILI9341.o \
+./src/Graphic.o \
+./src/HX8357.o \
 ./src/SampleHour.o \
 ./src/Timer.o \
 ./src/_write.o \
@@ -35,13 +35,13 @@ C_DEPS += \
 ./src/_write.d 
 
 CPP_DEPS += \
+./src/ADS7841.d \
 ./src/BlinkLed.d \
 ./src/Current.d \
 ./src/Delay.d \
 ./src/GFX.d \
-./src/HX8367.d \
-./src/ILI9325.d \
-./src/ILI9341.d \
+./src/Graphic.d \
+./src/HX8357.d \
 ./src/SampleHour.d \
 ./src/Timer.d \
 ./src/main.d 

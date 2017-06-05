@@ -19,7 +19,7 @@ volatile Timer::ticks_t Timer::ms_delayCount;
 // ----------------------------------------------------------------------------
 
 void
-Timer::sleep(ticks_t ticks)
+Timer::sleep(uint32_t ticks)
 {
   ms_delayCount = ticks;
 

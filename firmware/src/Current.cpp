@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include "Current.h"
 
-extern GFX * gfx;
+extern GFX<Color16Bit> * gfx;
 
 uint16_t Current::CONV_NUM=1;
 uint16_t Current::CONV_DEN=1;
