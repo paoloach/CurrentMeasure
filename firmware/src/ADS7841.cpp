@@ -5,6 +5,9 @@
  *      Author: paolo
  */
 
+
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx.h"
 #include "ADS7841.h"
 #include "Pins.h"
 #include "diag/Trace.h"
@@ -16,20 +19,21 @@ ADS7841::ADS7841() {
 void ADS7841::init() {
     GPIO_InitTypeDef GPIO_InitStructure;
     // Configure pin in output push/pull mode
-    GPIO_InitStructure.GPIO_Pin = AD_SERIAL_PIN;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_Init(AD_SERIAL_PORT, &GPIO_InitStructure);
+    GPIO_InitStructure.Pin = AD_SERIAL_PIN;
+    GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
+    GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(AD_SERIAL_PORT, &GPIO_InitStructure);
 
-    GPIO_InitStructure.GPIO_Pin = AD_CS_PIN;
-    GPIO_Init(AD_CS_PORT, &GPIO_InitStructure);
+    GPIO_InitStructure.Pin = AD_CS_PIN;
+    HAL_GPIO_Init(AD_CS_PORT, &GPIO_InitStructure);
 
-    GPIO_InitStructure.GPIO_Pin = AD_IN_PIN;
-    GPIO_Init(AD_IN_PORT, &GPIO_InitStructure);
+    GPIO_InitStructure.Pin = AD_IN_PIN;
+    HAL_GPIO_Init(AD_IN_PORT, &GPIO_InitStructure);
 
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-    GPIO_InitStructure.GPIO_Pin = AD_OUT_PIN;
-    GPIO_Init(AD_OUT_PORT, &GPIO_InitStructure);
+    GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStructure.Pin = AD_OUT_PIN;
+    HAL_GPIO_Init(AD_OUT_PORT, &GPIO_InitStructure);
 
 }
 
@@ -76,8 +80,8 @@ uint16_t ADS7841::get(uint8_t channel) {
         toSend = 0x090;
     }
 
-    AD_SERIAL_PORT->BRR = AD_SERIAL_PIN;
-    AD_CS_PORT->BRR = AD_CS_PIN;
+    AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN << 16;
+    AD_CS_PORT->BSRR = AD_CS_PIN << 16;
     __asm(
             "nop\n" // 14 ns at 70 Mhz
             "nop\n"// 14 ns at 70 Mhz
@@ -89,22 +93,21 @@ uint16_t ADS7841::get(uint8_t channel) {
         if (toSend & 0x80)
             AD_IN_PORT->BSRR = AD_IN_PIN;
         else
-            AD_IN_PORT->BRR = AD_IN_PIN;
+            AD_IN_PORT->BSRR = AD_IN_PIN << 16;
         toSend = toSend << 1;
       //  WAIT_UNTIL_200A
         AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN;
         input[i] = AD_OUT_PORT->IDR;
         WAIT_200
-        AD_SERIAL_PORT->BRR = AD_SERIAL_PIN;
+        AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN << 16;
     }
-    AD_IN_PORT->BRR;
     // BUSY
     WAIT_200
     AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN;
     input[8] = AD_OUT_PORT->IDR;
     WAIT_200
     for (uint8_t i = 0; i < 12; i++) {
-        AD_SERIAL_PORT->BRR = AD_SERIAL_PIN;
+        AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN << 16;
         WAIT_200
         AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN;
         input[i+9] = AD_OUT_PORT->IDR;
@@ -116,7 +119,7 @@ uint16_t ADS7841::get(uint8_t channel) {
     }
 
     for (uint8_t i = 0; i < 4; i++) {
-        AD_SERIAL_PORT->BRR = AD_SERIAL_PIN;
+        AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN << 16;
         WAIT_200
         AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN;
         input[i+21] = AD_OUT_PORT->IDR;

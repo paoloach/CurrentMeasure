@@ -66,15 +66,15 @@ enum class REG {
 class RegisterBase {
 protected:
     static void writeIndex(uint16_t index) {
-        RS_PORT->BRR = RS_PIN;
-        WR_PORT->BRR = WR_PIN;
+        RS_PORT->BSRR = RS_PIN << 16;
+        WR_PORT->BSRR = WR_PIN << 16;
         setData(index);
         WR_PORT->BSRR = WR_PIN;
     }
 
     static void writeDataByte(uint16_t word) {
         RS_PORT->BSRR = RS_PIN;
-        WR_PORT->BRR = WR_PIN;
+        WR_PORT->BSRR = WR_PIN << 16;
         setData(word);
         WR_PORT->BSRR = WR_PIN;
     }
@@ -92,13 +92,13 @@ template<REG r>
 class Register1Write: public RegisterBase {
 public:
     static void writeData(uint16_t word) {
-        CS_PORT->BRR = CS_PIN;
+        CS_PORT->BSRR = CS_PIN << 16;
         RegisterBase::writeIndex(static_cast<uint16_t>(static_cast<uint16_t>(r)));
         RS_PORT->BSRR = RS_PIN;
         writeDataByte(word);
     }
     static void writeData(uint16_t word, int len) {
-        CS_PORT->BRR = CS_PIN;
+        CS_PORT->BSRR = CS_PIN << 16;
         RegisterBase::writeIndex(static_cast<uint16_t>(static_cast<uint16_t>(r)));
         RS_PORT->BSRR = RS_PIN;
         for (int i=0; i< len; i++)
@@ -110,7 +110,7 @@ template<REG r, std::size_t _Nm>
 class RegisterWrite: public RegisterBase {
 public:
     static void writeData(std::array<uint16_t, _Nm> && data) {
-        CS_PORT->BRR = CS_PIN;
+        CS_PORT->BSRR = CS_PIN << 16;
         RegisterBase::writeIndex(static_cast<uint16_t>(static_cast<uint16_t>(r)));
         RS_PORT->BSRR = RS_PIN;
         for (uint16_t & word : data) {

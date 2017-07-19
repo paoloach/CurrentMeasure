@@ -32,5 +32,5 @@ system/src/cmsis \
 system/src/cortexm \
 system/src/diag \
 system/src/newlib \
-system/src/stm32f1-stdperiph \
+system/src/stm32f4-hal \
 

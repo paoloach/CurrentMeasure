@@ -114,8 +114,8 @@ void HX8357::setDriverQuality(DriverQuality driverQuality) {
 
 }
 void HX8357::reset() {
-    CS_PORT->BRR = CS_PIN;
-    RESET_PORT->BRR = RESET_PIN;
+    CS_PORT->BSRR = CS_PIN << 16;
+    RESET_PORT->BSRR = RESET_PIN << 16;
     Timer::sleep(20);
     RESET_PORT->BSRR = RESET_PIN;
     Timer::sleep(20);
@@ -131,7 +131,7 @@ void HX8357::flood(Color16Bit color, uint32_t len) {
 }
 
 void CaSet::writeData(uint16_t start, uint16_t end) {
-    CS_PORT->BRR = CS_PIN;
+    CS_PORT->BSRR = CS_PIN << 16;
     RegisterBase::writeIndex(static_cast<uint16_t>(static_cast<uint16_t>(REG::CASET)));
     RS_PORT->BSRR = RS_PIN;
     writeDataByte(start >> 8);
@@ -142,7 +142,7 @@ void CaSet::writeData(uint16_t start, uint16_t end) {
 }
 
 void PaSet::writeData(uint16_t start, uint16_t end) {
-    CS_PORT->BRR = CS_PIN;
+    CS_PORT->BSRR = CS_PIN << 16;
     RegisterBase::writeIndex(static_cast<uint16_t>(static_cast<uint16_t>(REG::PASET)));
     RS_PORT->BSRR = RS_PIN;
     writeDataByte(start >> 8);

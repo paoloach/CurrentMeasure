@@ -8,7 +8,8 @@
 #ifndef PINS_H_
 #define PINS_H_
 
-#include "stm32f10x.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx.h"
 
 
 /**
@@ -43,56 +44,56 @@
  */
 
 constexpr auto AD_SERIAL_PORT=GPIOA;
-#define AD_SERIAL_PIN   GPIO_Pin_0
+#define AD_SERIAL_PIN   GPIO_PIN_0
 constexpr auto AD_CS_PORT=GPIOA;
-#define AD_CS_PIN   GPIO_Pin_1
+#define AD_CS_PIN   GPIO_PIN_1
 constexpr auto AD_IN_PORT=GPIOA;
-#define AD_IN_PIN   GPIO_Pin_2
+#define AD_IN_PIN   GPIO_PIN_2
 constexpr auto AD_OUT_PORT=GPIOA;
-#define AD_OUT_PIN   GPIO_Pin_4
+#define AD_OUT_PIN   GPIO_PIN_4
 constexpr auto AD_BUSY_PORT=GPIOA;
-#define AD_BUSY_PIN   GPIO_Pin_3
+#define AD_BUSY_PIN   GPIO_PIN_3
 
 constexpr auto RESET_PORT=GPIOA;
-#define RESET_PIN  GPIO_Pin_12
+#define RESET_PIN  GPIO_PIN_12
 constexpr auto CS_PORT=GPIOA;
-#define CS_PIN  GPIO_Pin_5
+#define CS_PIN  GPIO_PIN_5
 constexpr auto RS_PORT=GPIOA;
-#define RS_PIN  GPIO_Pin_6
+#define RS_PIN  GPIO_PIN_6
 constexpr auto WR_PORT=GPIOA;
-#define WR_PIN  GPIO_Pin_7
+#define WR_PIN  GPIO_PIN_7
 constexpr auto D0_PORT=GPIOB;
-#define D0_PIN  GPIO_Pin_0
+#define D0_PIN  GPIO_PIN_8
 constexpr auto D1_PORT=GPIOB;
-#define D1_PIN  GPIO_Pin_1
+#define D1_PIN  GPIO_PIN_1
 constexpr auto D2_PORT=GPIOB;
-#define D2_PIN  GPIO_Pin_5
+#define D2_PIN  GPIO_PIN_5
 constexpr auto D3_PORT=GPIOB;
-#define D3_PIN  GPIO_Pin_6
+#define D3_PIN  GPIO_PIN_6
 constexpr auto D4_PORT=GPIOB;
-#define D4_PIN  GPIO_Pin_7
+#define D4_PIN  GPIO_PIN_7
 constexpr auto D5_PORT=GPIOB;
-#define D5_PIN  GPIO_Pin_8
+#define D5_PIN  GPIO_PIN_8
 constexpr auto D6_PORT=GPIOB;
-#define D6_PIN  GPIO_Pin_9
+#define D6_PIN  GPIO_PIN_9
 constexpr auto D7_PORT=GPIOB;
-#define D7_PIN  GPIO_Pin_10
+#define D7_PIN  GPIO_PIN_10
 constexpr auto D8_PORT=GPIOB;
-#define D8_PIN  GPIO_Pin_11
+#define D8_PIN  GPIO_PIN_11
 constexpr auto D9_PORT=GPIOB;
-#define D9_PIN  GPIO_Pin_12
+#define D9_PIN  GPIO_PIN_12
 constexpr auto D10_PORT=GPIOB;
-#define D10_PIN  GPIO_Pin_13
+#define D10_PIN  GPIO_PIN_13
 constexpr auto D11_PORT=GPIOB;
-#define D11_PIN  GPIO_Pin_14
+#define D11_PIN  GPIO_PIN_14
 constexpr auto D12_PORT=GPIOB;
-#define D12_PIN  GPIO_Pin_15
+#define D12_PIN  GPIO_PIN_15
 constexpr auto D13_PORT=GPIOA;
-#define D13_PIN  GPIO_Pin_8
+#define D13_PIN  GPIO_PIN_8
 constexpr auto D14_PORT=GPIOA;
-#define D14_PIN  GPIO_Pin_9
+#define D14_PIN  GPIO_PIN_9
 constexpr auto D15_PORT=GPIOA;
-#define D15_PIN  GPIO_Pin_10
+#define D15_PIN  GPIO_PIN_10
 
 
 

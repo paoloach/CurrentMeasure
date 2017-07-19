@@ -435,12 +435,15 @@ public:
             }
         }
     }
-    void drawString(Point && p, const char * s) {
+    uint16_t drawString(Point && p, const char * s) {
+        uint16_t c=0;
         while (*s != 0) {
             drawChar(p, *s);
             p.x += font->xSize;
             s++;
+            c++;
         }
+        return c;
     }
     void setFont(const Font * font) {
         this->font = font;
