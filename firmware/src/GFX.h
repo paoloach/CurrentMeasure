@@ -127,13 +127,12 @@ public:
     }
 
     void drawPixel(Point && point, Color color) {
-        if ((point.x < 0) || (point.y < 0) || (point.x >= width) || (point.y >= height))
+        if ((point.y < 0) || (point.x < 0) || (point.y >= width) || (point.x >= height))
             return;
-        activeCS();
-        drawPixelInternal(std::move(point), std::move(color));
-        idleCS();
+        drawPixelInternal(point.x, point.y, color);
     }
     virtual void drawPixelInternal(Point && point, Color && color)=0;
+    virtual void drawPixelInternal(uint16_t x, uint16_t y, Color color)=0;
     virtual void setAddrWindow(uint16_t left, uint16_t top, uint16_t right, uint16_t bottom) =0;
     virtual void flood(Color color, uint32_t len)=0;
 
@@ -153,11 +152,31 @@ public:
             length = x2 - p.x + 1;
         }
 
-        activeCS();
         setAddrWindow(p.x, p.y, x2, p.y);
         flood(color, length);
-        idleCS();
     }
+
+    void drawFastHLine(uint16_t y, uint16_t x, uint16_t length, Color color) {
+        int16_t x2;
+
+        y = height-y;
+        // Initial off-screen clipping
+        if ((y < 0) || (y >= height) || (x >= width) || ((x2 = (x + length - 1)) < 0))
+            return;
+
+        if (x < 0) {        // Clip left
+            length += x;
+            x = 0;
+        }
+        if (x2 >= width) { // Clip right
+            x2 = width - 1;
+            length = x2 - x + 1;
+        }
+
+        setAddrWindow(x, y, x2, y);
+        flood(color, length);
+    }
+
     void drawFastVLine(Point p, uint16_t length, Color color) {
         int16_t y2;
 
@@ -174,10 +193,27 @@ public:
         }
 
         p.x = width - p.x;
-        activeCS();
         setAddrWindow(p.x, p.y, p.x, y2);
         flood(color, length);
-        idleCS();
+    }
+
+    void drawFastVLine(uint16_t x, uint16_t y, uint16_t length, Color color) {
+        int16_t y2;
+
+        // Initial off-screen clipping
+        if ((x < 0) || (x >= width) || (y >= height) || ((y2 = (y + length - 1)) < 0))
+            return;
+        if (y < 0) {
+            length += y;
+            y = 0;
+        }
+        if (y2 >= height) {
+            y2 = height - 1;
+            length = y2 - y + 1;
+        }
+
+        setAddrWindow(x, y, x, y2);
+        flood(color, length);
     }
     void drawLine(Point start, Point end, Color color) {
         int16_t steep = abs(end.y - start.y) > abs(end.x - start.x);
@@ -318,11 +354,9 @@ public:
 
         //    x2 = width - x2;
 
-        activeCS();
         setAddrWindow(leftTop.x, leftTop.y, x2, y2);
         flood(color, w * h);
         setAddrWindow(0, 0, width - 1, height - 1);
-        idleCS();
     }
     void drawRoundRect(Point leftTop, int16_t w, int16_t h, int16_t r, Color color) {
         // smarter version
@@ -389,7 +423,7 @@ public:
         }
     }
     void drawChar(Point p, unsigned char c) {
-        if ((p.x >= width) || (p.y >= height) || ((p.x + font->xSize - 1) < 0) || ((p.y + font->ySize - 1) < 0))
+        if ((p.y >= width) || (p.x >= height) || ((p.x + font->xSize - 1) < 0) || ((p.y + font->ySize - 1) < 0))
             return;
 
         if (c < font->offset)

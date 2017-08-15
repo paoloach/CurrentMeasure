@@ -16,24 +16,24 @@
 Sampling sampling;
 
 Sampling::Sampling() :current(seconds1),next(seconds2){
-    __HAL_RCC_TIM1_CLK_ENABLE();
-
-    TIM_Base_InitTypeDef timerInitStructure;
-    timerInitStructure.Prescaler = 72; // 1Mhz
-    timerInitStructure.Period = 1000; // 1Khz;
-    timerInitStructure.CounterMode = TIM_COUNTERMODE_UP;
-
-    timerInitStructure.ClockDivision = 1;
-    timerInitStructure.RepetitionCounter = 0;
-    TIM_Base_SetConfig(TIMER, &timerInitStructure);
-
-    HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
-    HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 0,1);
-
-    runIsr = false;
-    currentIter = current.begin();
-
-    TIMER->DIER |= TIM_DIER_UIE;
+//    __HAL_RCC_TIM1_CLK_ENABLE();
+//
+//    TIM_Base_InitTypeDef timerInitStructure;
+//    timerInitStructure.Prescaler = 72; // 1Mhz
+//    timerInitStructure.Period = 1000; // 1Khz;
+//    timerInitStructure.CounterMode = TIM_COUNTERMODE_UP;
+//
+//    timerInitStructure.ClockDivision = 1;
+//    timerInitStructure.RepetitionCounter = 0;
+//    TIM_Base_SetConfig(TIMER, &timerInitStructure);
+//
+//    HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+//    HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 0,1);
+//
+//    runIsr = false;
+//    currentIter = current.begin();
+//
+//    TIMER->DIER |= TIM_DIER_UIE;
 }
 
 uint16_t Sampling::meanSecond() {
@@ -56,14 +56,5 @@ void Sampling::isr() {
         currentIter = current.begin();
     }
     runIsr=false;
-}
-
-extern "C" {
-
-void TIM1_UP_IRQHandler(void) {
-    TIM1->SR &= TIM_SR_UIF;
-    sampling.enableISR();
-}
-
 }
 

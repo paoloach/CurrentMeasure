@@ -17,6 +17,8 @@ ADS7841::ADS7841() {
 }
 
 void ADS7841::init() {
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+
     GPIO_InitTypeDef GPIO_InitStructure;
     // Configure pin in output push/pull mode
     GPIO_InitStructure.Pin = AD_SERIAL_PIN;
@@ -41,6 +43,9 @@ void ADS7841::init() {
                     "nop\n nop\n nop\n nop\n nop\n"\
                     "nop\n nop\n nop\n nop\n nop\n"\
                     "nop\n nop\n nop\n nop\n nop\n"\
+                    "nop\n nop\n nop\n nop\n nop\n"\
+                    "nop\n nop\n nop\n nop\n nop\n"\
+                    "nop\n nop\n nop\n nop\n nop\n"\
 );
 
 #define WAIT_UNTIL_200A __asm(\
@@ -56,10 +61,6 @@ void ADS7841::init() {
 );
 
 uint16_t ADS7841::get(uint8_t channel) {
-    init();
-
-    uint32_t input[25];
-
     uint16_t result = 0;
 
     uint8_t toSend;
@@ -82,35 +83,29 @@ uint16_t ADS7841::get(uint8_t channel) {
 
     AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN << 16;
     AD_CS_PORT->BSRR = AD_CS_PIN << 16;
-    __asm(
-            "nop\n" // 14 ns at 70 Mhz
-            "nop\n"// 14 ns at 70 Mhz
-            "nop\n"// 14 ns at 70 Mhz
-            "nop\n"// 14 ns at 70 Mhz
-    );
-
     for (uint8_t i = 0; i < 8; i++) {
         if (toSend & 0x80)
             AD_IN_PORT->BSRR = AD_IN_PIN;
         else
             AD_IN_PORT->BSRR = AD_IN_PIN << 16;
         toSend = toSend << 1;
-      //  WAIT_UNTIL_200A
+        __asm(
+                "nop\n nop\n nop\n nop\n  nop\n"
+                "nop\n nop\n nop\n nop\n  nop\n"
+                );
+
         AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN;
-        input[i] = AD_OUT_PORT->IDR;
         WAIT_200
         AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN << 16;
     }
     // BUSY
     WAIT_200
     AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN;
-    input[8] = AD_OUT_PORT->IDR;
     WAIT_200
     for (uint8_t i = 0; i < 12; i++) {
         AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN << 16;
         WAIT_200
         AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN;
-        input[i+9] = AD_OUT_PORT->IDR;
         if (AD_OUT_PORT->IDR & AD_OUT_PIN) {
             result |= 1;
         }
@@ -122,7 +117,6 @@ uint16_t ADS7841::get(uint8_t channel) {
         AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN << 16;
         WAIT_200
         AD_SERIAL_PORT->BSRR = AD_SERIAL_PIN;
-        input[i+21] = AD_OUT_PORT->IDR;
         WAIT_200
     }
 

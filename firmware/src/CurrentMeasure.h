@@ -12,27 +12,33 @@
 
 class CurrentMeasure {
 public:
-    void init() {ads7841.init();}
+    void init();
     // Max current:     86 mA
-    uint16_t getHighSensibility(){
-        uint16_t adc = ads7841.get(0);
+    static uint16_t  getHighSensibility(){
+        uint16_t adc = ADS7841::get(0);
         constexpr double rINA122 = 470;
         constexpr double gain = 5+200000/rINA122;
         constexpr double rShunt = 0.11;
-        double current = adc/(gain*rShunt);
+        double current =10*adc/(gain*rShunt);
         return current;
     }
     // Max current: 1489 mA
-    uint16_t getLowSensibility(){
-        uint16_t adc = ads7841.get(1);
+    static uint16_t getLowSensibility(){
+        uint16_t adc = ADS7841::get(1);
         constexpr double rINA122 = 10000;
         constexpr double gain = 5+200000/rINA122;
         constexpr double rShunt = 0.11;
-        double current = adc/(gain*rShunt);
+        double current =8+ adc/(gain*rShunt);
         return current;
     }
-private:
-    ADS7841 ads7841;
+
+    static void start() ;
+    static uint16_t currents[480];
+    static uint16_t pos;
+    static bool     sampleEnd;
+    static bool     trigger;
+    static uint16_t triggerStart;
+    static uint16_t triggerLevel;
 };
 
 #endif /* CURRENTMEASURE_H_ */

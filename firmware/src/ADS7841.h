@@ -13,8 +13,8 @@
 class ADS7841 {
 public:
     ADS7841();
-    void init();
-    uint16_t get(uint8_t channel);
+    static void init();
+    static uint16_t get(uint8_t channel);
 };
 
 #endif /* ADS7841_H_ */

@@ -119,6 +119,15 @@ dumpExceptionStack (ExceptionStackFrame* frame,
   trace_printf (" HFSR =  %08X\n", SCB->HFSR);
   trace_printf (" DFSR =  %08X\n", SCB->DFSR);
   trace_printf (" AFSR =  %08X\n", SCB->AFSR);
+  trace_printf ("FSMC:\n");
+  trace_printf (" FSMC_BCR1[0] = %08X\n",FSMC_Bank1->BTCR[0]);
+  trace_printf (" FSMC_BCR1[1] = %08X\n",FSMC_Bank1->BTCR[1]);
+  trace_printf (" FSMC_BCR1[2] = %08X\n",FSMC_Bank1->BTCR[2]);
+  trace_printf (" FSMC_BCR1[3] = %08X\n",FSMC_Bank1->BTCR[3]);
+  trace_printf (" FSMC_BCR1[4] = %08X\n",FSMC_Bank1->BTCR[4]);
+  trace_printf (" FSMC_BCR1[5] = %08X\n",FSMC_Bank1->BTCR[5]);
+  trace_printf (" FSMC_BCR1[6] = %08X\n",FSMC_Bank1->BTCR[6]);
+  trace_printf (" FSMC_BCR1[7] = %08X\n",FSMC_Bank1->BTCR[7]);
 
   if (cfsr & (1UL << 7))
     {
