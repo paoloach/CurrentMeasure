@@ -132,8 +132,8 @@ int main(int argc, char* argv[]) {
 
     gfx = new HX8357::HX8357 { LcdID::ID_HX8357D };
 
-    gfx->setForeground(WHITE);
-    gfx->setBackground(BLACK);
+    gfx->setForeground(BLACK);
+    gfx->setBackground(WHITE);
     gfx->setFont(&bigFont);
 
     gfx->drawString(Point(0, INSTANTANEUS_VALUE.y), "Actual: ");

@@ -51,8 +51,11 @@ public:
 
 };
 
-constexpr Color16Bit BLACK(0, 0, 0);
-constexpr Color16Bit WHITE(255, 255, 255);
+constexpr Color16Bit WHITE(0, 0, 0);
+constexpr Color16Bit BLACK(255, 255, 255);
+constexpr Color16Bit DARK_GRAY(192, 192, 192);
+constexpr Color16Bit LIGHT_GRAY(128, 128, 128);
+constexpr Color16Bit RED(255, 255, 0);
 
 class Color6Bit {
 private:

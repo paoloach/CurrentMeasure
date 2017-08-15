@@ -27,8 +27,8 @@ bool Graphic::goNextTrigger() {
 
 void Graphic::display() {
     uint16_t half = gfx->width/2;
-    gfx->fillRect(Point(0,BOTTOM),239,10, BLACK);
-    gfx->fillRect(Point(0,TOP),239,BOTTOM-TOP, WHITE);
+    gfx->fillRect(Point(0,BOTTOM),239,10, WHITE);
+    gfx->fillRect(Point(0,TOP),239,BOTTOM-TOP, BLACK);
     uint16_t start = triggerPos < half ? 0 : triggerPos-half;
     uint16_t end = start + gfx->width;
     if (end > SampleHour::SAMPLE_SIZE){
@@ -43,7 +43,7 @@ void Graphic::display() {
     for (uint16_t i = start; i < end; i++){
         uint16_t y = sampleHour->get(i).scale(std::get<0>(stats),BOTTOM-TOP );
         y+=BOTTOM-y;
-        gfx->drawPixel(Point(i, y), BLACK);
+        gfx->drawPixel(Point(i, y), WHITE);
     }
 }
 

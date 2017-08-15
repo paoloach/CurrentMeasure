@@ -19,7 +19,7 @@ public:
         constexpr double rINA122 = 470;
         constexpr double gain = 5+200000/rINA122;
         constexpr double rShunt = 0.11;
-        double current =10*adc/(gain*rShunt);
+        double current =adc/(gain*rShunt);
         return current;
     }
     // Max current: 1489 mA

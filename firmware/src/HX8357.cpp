@@ -7,6 +7,7 @@
 
 #include "HX8357.h"
 #include "Timer.h"
+#include "CurrentMeasure.h"
 
 namespace HX8357 {
 
@@ -15,14 +16,13 @@ volatile uint16_t * LCD_REG = (uint16_t *) 0x60000000;
 volatile uint16_t * LCD_DATA = (uint16_t *) 0x60080000;
 #endif
 
-
 HX8357::HX8357(LcdID lcd) {
     driver = lcd;
     init();
 }
 
 void HX8357::init() {
-    CS_PORT->BSRR=CS_PIN;
+    CS_PORT->BSRR = CS_PIN;
     RESET_PORT->BSRR = RESET_PIN;
     Timer::sleep(2);
     RESET_PORT->BSRR = RESET_PIN << 16;
@@ -36,7 +36,6 @@ void HX8357::init() {
 //    trace_printf(" GPIOB->LCKR = %08X\n", GPIOB->LCKR);
 //    trace_printf(" GPIOB->AFR[0] = %08X\n", GPIOB->AFR[0]);
 //    trace_printf(" GPIOB->AFR[1] = %08X\n", GPIOB->AFR[1]);
-
 
 //    trace_printf ("FSMC:\n");
 //    trace_printf (" GPIOD->MODER = %08X\n",GPIOD->MODER);
@@ -78,7 +77,6 @@ void HX8357::init() {
 //
 //        }
 //    }
-
 
     if (driver == LcdID::ID_HX8357B) {
 
@@ -129,20 +127,14 @@ void HX8357::init() {
         DisplayOff::apply();
         ColMod::writeData(0x55);
 
-
         SetOsc_D::writeData( { 0x68, 0x01 });
         SetPanel_D::writeData(5);
-        SetPower_D::writeData({0,0x15,0x1C,0x1C, 0x83,0xAA,0x29});
- //       SetSTBA::writeData({0x50,0x50,0x01,0x3C, 0x1E,0x08});
- //       SetCYC::writeData({0x02,0x40,0x00,0x2A,0x2A, 0x0D, 0x78});
-        SetGamma_D::writeData( { 0x02, 0x0A, 0x11, 0x1D, 0x23,
-                                 0x35, 0x41, 0x4b, 0x4B, 0x42,
-                                 0x3A, 0x27, 0x1B, 0x08, 0x09,
-                                 0x03, 0x02, 0x0A, 0x11, 0x1D,
-                                 0x23, 0x35, 0x41, 0x4B, 0x4B,
-                                 0x42, 0x3A,  0x27, 0x1B, 0x08,
-                                 0x09, 0x03, 0x00, 0x01});
-        SetTearLine::writeData({0x0,0x02});
+        SetPower_D::writeData( { 0, 0x15, 0x1C, 0x1C, 0x83, 0xAA, 0x29 });
+        //       SetSTBA::writeData({0x50,0x50,0x01,0x3C, 0x1E,0x08});
+        //       SetCYC::writeData({0x02,0x40,0x00,0x2A,0x2A, 0x0D, 0x78});
+        SetGamma_D::writeData( { 0x02, 0x0A, 0x11, 0x1D, 0x23, 0x35, 0x41, 0x4b, 0x4B, 0x42, 0x3A, 0x27, 0x1B, 0x08, 0x09, 0x03, 0x02, 0x0A, 0x11, 0x1D, 0x23, 0x35, 0x41, 0x4B, 0x4B, 0x42, 0x3A, 0x27,
+                0x1B, 0x08, 0x09, 0x03, 0x00, 0x01 });
+        SetTearLine::writeData( { 0x0, 0x02 });
         Timer::sleep(50);
 
         SleepOut::apply();
@@ -160,9 +152,9 @@ void HX8357::init() {
 }
 
 void HX8357::drawPixel(Point point, Color16Bit color) {
-    if (point.x < 0 || point.x >= height|| point.y < 0 || point.y >= width)
+    if (point.x < 0 || point.x >= height || point.y < 0 || point.y >= width)
         return;
-    point.y = height-point.y;
+    point.y = height - point.y;
 
     CaSet::writeData(point.y, point.y);
     PaSet::writeData(point.x, point.x);
@@ -170,36 +162,52 @@ void HX8357::drawPixel(Point point, Color16Bit color) {
 
 }
 void HX8357::drawPixelInternal(Point && point, Color16Bit && color) {
-    point.y = height-point.y;
+    point.y = height - point.y;
     CaSet::writeData(point.x, point.y);
     PaSet::writeData(point.y, point.x);
     RamWR::writeData(color.color);
 }
 
 void HX8357::drawPixelInternal(uint16_t y, uint16_t x, Color16Bit color) {
-    y=height-y;
+    y = height - y;
     CaSet::writeData(x, x);
     PaSet::writeData(y, y);
     RamWR::writeData(color.color);
 }
 
-
 void HX8357::drawFastSample(uint16_t x, uint16_t value) {
 
-    x = DEFAULT_HEIGTH-x;
-    CaSet::writeData(20, DEFAULT_WIDTH-1);
-    PaSet::writeData(x, x);
+    CaSet::writeData(20, DEFAULT_WIDTH - 1);
+    PaSet::writeData(DEFAULT_HEIGTH - x, DEFAULT_HEIGTH - x);
 
     CS_PORT->BSRR = CS_PIN << 16;
     RegisterBase::writeIndex(static_cast<uint16_t>(REG::RAMWR));
     RS_PORT->BSRR = RS_PIN;
-    auto len=300-value;
-    for (int i = 0; i < len; i++)
-        RegisterBase::writeDataByte(WHITE.color);
-    for (int i = 0; i < value; i++)
-        RegisterBase::writeDataByte(BLACK.color);
+    auto len = 300 - value;
+    int y = 300;
+    for (int i = 0; i < len; i++, y--) {
+        if (y == CurrentMeasure::triggerLevel) {
+            RegisterBase::writeDataByte(RED.color);
+        } else {
+            if ((y % 20) == 0 || (x%50)==0) {
+                RegisterBase::writeDataByte(DARK_GRAY.color);
+            } else {
+                RegisterBase::writeDataByte(BLACK.color);
+            }
+        }
+    }
+    for (int i = 0; i < value; i++, y--) {
+        if (y == CurrentMeasure::triggerLevel) {
+            RegisterBase::writeDataByte(RED.color);
+        } else {
+            if ((y % 20) == 0 || (x%50)==0) {
+                RegisterBase::writeDataByte(LIGHT_GRAY.color);
+            } else {
+                RegisterBase::writeDataByte(WHITE.color);
+            }
+        }
+    }
 }
-
 
 void HX8357::setDriverQuality(DriverQuality driverQuality) {
 
