@@ -45,16 +45,5 @@ uint16_t Sampling::meanSecond() {
 }
 
 void Sampling::isr() {
-    if (!runIsr)
-        return;
-    volatile uint16_t hight = currentMeasure.getHighSensibility();
-    volatile uint16_t low = currentMeasure.getLowSensibility();
-    *currentIter = low < 50 ? hight : low;
-    currentIter++;
-    if (currentIter == current.end()) {
-        std::swap(current, next);
-        currentIter = current.begin();
-    }
-    runIsr=false;
 }
 

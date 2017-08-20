@@ -730,13 +730,14 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, HAL_DMA_Level
   
   return status;
 }
-
-/**
-  * @brief  Handles DMA interrupt request.
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA Stream.  
-  * @retval None
-  */
+//
+///**
+//  * @brief  Handles DMA interrupt request.
+//  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+//  *               the configuration information for the specified DMA Stream.
+//  * @retval None
+//  */
+extern int line;
 void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
 {
   uint32_t tmpisr;
@@ -745,9 +746,8 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
 
   /* calculate DMA base and stream number */
   DMA_Base_Registers *regs = (DMA_Base_Registers *)hdma->StreamBaseAddress;
-
+  line = __LINE__;
   tmpisr = regs->ISR;
-
   /* Transfer Error Interrupt management ***************************************/
   if ((tmpisr & (DMA_FLAG_TEIF0_4 << hdma->StreamIndex)) != RESET)
   {
@@ -755,10 +755,10 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
     {
       /* Disable the transfer error interrupt */
       hdma->Instance->CR  &= ~(DMA_IT_TE);
-      
+
       /* Clear the transfer error flag */
       regs->IFCR = DMA_FLAG_TEIF0_4 << hdma->StreamIndex;
-      
+
       /* Update error code */
       hdma->ErrorCode |= HAL_DMA_ERROR_TE;
     }
@@ -794,7 +794,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
     {
       /* Clear the half transfer complete flag */
       regs->IFCR = DMA_FLAG_HTIF0_4 << hdma->StreamIndex;
-      
+
       /* Multi_Buffering mode enabled */
       if(((hdma->Instance->CR) & (uint32_t)(DMA_SxCR_DBM)) != RESET)
       {
@@ -825,7 +825,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
           /* Disable the half transfer interrupt */
           hdma->Instance->CR  &= ~(DMA_IT_HT);
         }
-        
+
         if(hdma->XferHalfCpltCallback != NULL)
         {
           /* Half transfer callback */
@@ -841,13 +841,13 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
     {
       /* Clear the transfer complete flag */
       regs->IFCR = DMA_FLAG_TCIF0_4 << hdma->StreamIndex;
-      
+
       if(HAL_DMA_STATE_ABORT == hdma->State)
       {
         /* Disable all the transfer interrupts */
         hdma->Instance->CR  &= ~(DMA_IT_TC | DMA_IT_TE | DMA_IT_DME);
         hdma->Instance->FCR &= ~(DMA_IT_FE);
-        
+
         if((hdma->XferHalfCpltCallback != NULL) || (hdma->XferM1HalfCpltCallback != NULL))
         {
           hdma->Instance->CR  &= ~(DMA_IT_HT);
@@ -913,7 +913,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       }
     }
   }
-  
+
   /* manage error case */
   if(hdma->ErrorCode != HAL_DMA_ERROR_NONE)
   {

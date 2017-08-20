@@ -62,6 +62,8 @@
 									<listOptionValue builtIn="false" value="OS_USE_TRACE_SEMIHOSTING_DEBUG"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=25000000"/>
+									<listOptionValue builtIn="false" value="USE_SPI"/>
+									<listOptionValue builtIn="false" value="USE_DMA"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.336851532" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -80,6 +82,8 @@
 									<listOptionValue builtIn="false" value="OS_USE_TRACE_SEMIHOSTING_DEBUG"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=25000000"/>
+									<listOptionValue builtIn="false" value="USE_SPI"/>
+									<listOptionValue builtIn="false" value="USE_DMA"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.733875453" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -102,6 +106,8 @@
 									<listOptionValue builtIn="false" value="OS_USE_TRACE_SEMIHOSTING_DEBUG"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=25000000"/>
+									<listOptionValue builtIn="false" value="USE_SPI"/>
+									<listOptionValue builtIn="false" value="USE_DMA"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1589836468" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -151,7 +157,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry excluding="lcd.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
-						<entry excluding="stm32f4-hal/stm32f4xx_ll_fmc.c|stm32f4-hal/stm32f4xx_hal_wwdg.c|stm32f4-hal/stm32f4xx_hal_usart.c|stm32f4-hal/stm32f4xx_hal_uart.c|stm32f4-hal/stm32f4xx_hal_timebase_tim_template.c|stm32f4-hal/stm32f4xx_hal_timebase_rtc_wakeup_template.c|stm32f4-hal/stm32f4xx_hal_timebase_rtc_alarm_template.c|stm32f4-hal/stm32f4xx_hal_tim_ex.c|stm32f4-hal/stm32f4xx_hal_spi.c|stm32f4-hal/stm32f4xx_hal_spdifrx.c|stm32f4-hal/stm32f4xx_hal_smartcard.c|stm32f4-hal/stm32f4xx_hal_sdram.c|stm32f4-hal/stm32f4xx_hal_sd.c|stm32f4-hal/stm32f4xx_hal_sai.c|stm32f4-hal/stm32f4xx_hal_sai_ex.c|stm32f4-hal/stm32f4xx_hal_rtc.c|stm32f4-hal/stm32f4xx_hal_rtc_ex.c|stm32f4-hal/stm32f4xx_hal_rng.c|stm32f4-hal/stm32f4xx_hal_rcc_ex.c|stm32f4-hal/stm32f4xx_hal_qspi.c|stm32f4-hal/stm32f4xx_hal_pwr_ex.c|stm32f4-hal/stm32f4xx_hal_pcd.c|stm32f4-hal/stm32f4xx_hal_pcd_ex.c|stm32f4-hal/stm32f4xx_hal_pccard.c|stm32f4-hal/stm32f4xx_hal_nor.c|stm32f4-hal/stm32f4xx_hal_nand.c|stm32f4-hal/stm32f4xx_hal_msp_template.c|stm32f4-hal/stm32f4xx_hal_ltdc.c|stm32f4-hal/stm32f4xx_hal_ltdc_ex.c|stm32f4-hal/stm32f4xx_hal_lptim.c|stm32f4-hal/stm32f4xx_hal_irda.c|stm32f4-hal/stm32f4xx_hal_i2s.c|stm32f4-hal/stm32f4xx_hal_i2s_ex.c|stm32f4-hal/stm32f4xx_hal_i2c.c|stm32f4-hal/stm32f4xx_hal_i2c_ex.c|stm32f4-hal/stm32f4xx_hal_hcd.c|stm32f4-hal/stm32f4xx_hal_hash.c|stm32f4-hal/stm32f4xx_hal_hash_ex.c|stm32f4-hal/stm32f4xx_hal_fmpi2c.c|stm32f4-hal/stm32f4xx_hal_fmpi2c_ex.c|stm32f4-hal/stm32f4xx_hal_flash_ramfunc.c|stm32f4-hal/stm32f4xx_hal_flash_ex.c|stm32f4-hal/stm32f4xx_hal_dsi.c|stm32f4-hal/stm32f4xx_hal_dma2d.c|stm32f4-hal/stm32f4xx_hal_dma.c|stm32f4-hal/stm32f4xx_hal_dma_ex.c|stm32f4-hal/stm32f4xx_hal_dcmi.c|stm32f4-hal/stm32f4xx_hal_dcmi_ex.c|stm32f4-hal/stm32f4xx_hal_dac.c|stm32f4-hal/stm32f4xx_hal_dac_ex.c|stm32f4-hal/stm32f4xx_hal_cryp.c|stm32f4-hal/stm32f4xx_hal_cryp_ex.c|stm32f4-hal/stm32f4xx_hal_crc.c|stm32f4-hal/stm32f4xx_hal_cec.c|stm32f4-hal/stm32f4xx_hal_can.c|stm32f4-hal/stm32f4xx_hal_adc.c|stm32f4-hal/stm32f4xx_hal_adc_ex.c|stm32f4-hal/stm32f4xx_ll_sdmmc.c|stm32f4-hal/stm32f4xx_ll_usb.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system/src"/>
+						<entry excluding="stm32f4-hal/stm32f4xx_ll_fsmc.c|stm32f4-hal/stm32f4xx_hal_sram.c|stm32f4-hal/stm32f4xx_hal_pwr.c|stm32f4-hal/stm32f4xx_hal_iwdg.c|stm32f4-hal/stm32f4xx_hal_eth.c|stm32f4-hal/stm32f4xx_ll_fmc.c|stm32f4-hal/stm32f4xx_hal_wwdg.c|stm32f4-hal/stm32f4xx_hal_usart.c|stm32f4-hal/stm32f4xx_hal_uart.c|stm32f4-hal/stm32f4xx_hal_timebase_tim_template.c|stm32f4-hal/stm32f4xx_hal_timebase_rtc_wakeup_template.c|stm32f4-hal/stm32f4xx_hal_timebase_rtc_alarm_template.c|stm32f4-hal/stm32f4xx_hal_tim_ex.c|stm32f4-hal/stm32f4xx_hal_spdifrx.c|stm32f4-hal/stm32f4xx_hal_smartcard.c|stm32f4-hal/stm32f4xx_hal_sdram.c|stm32f4-hal/stm32f4xx_hal_sd.c|stm32f4-hal/stm32f4xx_hal_sai.c|stm32f4-hal/stm32f4xx_hal_sai_ex.c|stm32f4-hal/stm32f4xx_hal_rtc.c|stm32f4-hal/stm32f4xx_hal_rtc_ex.c|stm32f4-hal/stm32f4xx_hal_rng.c|stm32f4-hal/stm32f4xx_hal_rcc_ex.c|stm32f4-hal/stm32f4xx_hal_qspi.c|stm32f4-hal/stm32f4xx_hal_pwr_ex.c|stm32f4-hal/stm32f4xx_hal_pcd.c|stm32f4-hal/stm32f4xx_hal_pcd_ex.c|stm32f4-hal/stm32f4xx_hal_pccard.c|stm32f4-hal/stm32f4xx_hal_nor.c|stm32f4-hal/stm32f4xx_hal_nand.c|stm32f4-hal/stm32f4xx_hal_msp_template.c|stm32f4-hal/stm32f4xx_hal_ltdc.c|stm32f4-hal/stm32f4xx_hal_ltdc_ex.c|stm32f4-hal/stm32f4xx_hal_lptim.c|stm32f4-hal/stm32f4xx_hal_irda.c|stm32f4-hal/stm32f4xx_hal_i2s.c|stm32f4-hal/stm32f4xx_hal_i2s_ex.c|stm32f4-hal/stm32f4xx_hal_i2c.c|stm32f4-hal/stm32f4xx_hal_i2c_ex.c|stm32f4-hal/stm32f4xx_hal_hcd.c|stm32f4-hal/stm32f4xx_hal_hash.c|stm32f4-hal/stm32f4xx_hal_hash_ex.c|stm32f4-hal/stm32f4xx_hal_fmpi2c.c|stm32f4-hal/stm32f4xx_hal_fmpi2c_ex.c|stm32f4-hal/stm32f4xx_hal_flash_ramfunc.c|stm32f4-hal/stm32f4xx_hal_flash_ex.c|stm32f4-hal/stm32f4xx_hal_dsi.c|stm32f4-hal/stm32f4xx_hal_dma2d.c|stm32f4-hal/stm32f4xx_hal_dma_ex.c|stm32f4-hal/stm32f4xx_hal_dcmi.c|stm32f4-hal/stm32f4xx_hal_dcmi_ex.c|stm32f4-hal/stm32f4xx_hal_dac.c|stm32f4-hal/stm32f4xx_hal_dac_ex.c|stm32f4-hal/stm32f4xx_hal_cryp.c|stm32f4-hal/stm32f4xx_hal_cryp_ex.c|stm32f4-hal/stm32f4xx_hal_crc.c|stm32f4-hal/stm32f4xx_hal_cec.c|stm32f4-hal/stm32f4xx_hal_can.c|stm32f4-hal/stm32f4xx_hal_adc.c|stm32f4-hal/stm32f4xx_hal_adc_ex.c|stm32f4-hal/stm32f4xx_ll_sdmmc.c|stm32f4-hal/stm32f4xx_ll_usb.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system/src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -214,6 +220,8 @@
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
+									<listOptionValue builtIn="false" value="USE_SPI"/>
+									<listOptionValue builtIn="false" value="USE_DMA"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.50087440" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -229,6 +237,8 @@
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=25000000"/>
+									<listOptionValue builtIn="false" value="USE_SPI"/>
+									<listOptionValue builtIn="false" value="USE_DMA"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.163334503" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -248,6 +258,8 @@
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=25000000"/>
+									<listOptionValue builtIn="false" value="USE_SPI"/>
+									<listOptionValue builtIn="false" value="USE_DMA"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.936102365" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -295,6 +307,21 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.341244940.1262735595" name="stm32f4xx_hal_dma.c" rcbsApplicability="disable" resourcePath="system/src/stm32f4-hal/stm32f4xx_hal_dma.c" toolsToInvoke="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1806742207.173514453">
+						<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1806742207.173514453" name="Cross ARM C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1806742207">
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.1983810790" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" valueType="definedSymbols">
+								<listOptionValue builtIn="false" value="DEBUG"/>
+								<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
+								<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
+								<listOptionValue builtIn="false" value="TRACE"/>
+								<listOptionValue builtIn="false" value="OS_USE_TRACE_SEMIHOSTING_DEBUG"/>
+								<listOptionValue builtIn="false" value="STM32F407xx"/>
+								<listOptionValue builtIn="false" value="HSE_VALUE=25000000"/>
+								<listOptionValue builtIn="false" value="USE_SPI"/>
+							</option>
+							<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1014137848" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
+						</tool>
+					</fileInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>

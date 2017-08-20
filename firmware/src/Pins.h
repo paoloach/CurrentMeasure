@@ -35,22 +35,22 @@
  * RS -->C4
  * WR -->C5
  *
- * AD_SERIAL --> A0
- * AD_CS     --> A1
- * AD_IN     --> A2
- * AD_OUT    --> A3
- * AD_BUSY   --> A4
+ * AD_SERIAL --> A5
+ * AD_CS     --> B8
+ * AD_IN     --> A7
+ * AD_OUT    --> A6
+ * AD_BUSY   --> B6
  *
  */
 
-constexpr auto AD_SERIAL_PORT=GPIOB;
-#define AD_SERIAL_PIN   GPIO_PIN_9
+constexpr auto AD_SERIAL_PORT=GPIOA;
+#define AD_SERIAL_PIN   GPIO_PIN_5
 constexpr auto AD_CS_PORT=GPIOB;
 #define AD_CS_PIN   GPIO_PIN_8
-constexpr auto AD_IN_PORT=GPIOB;
+constexpr auto AD_IN_PORT=GPIOA;
 #define AD_IN_PIN   GPIO_PIN_7
-constexpr auto AD_OUT_PORT=GPIOB;
-#define AD_OUT_PIN   GPIO_PIN_4
+constexpr auto AD_OUT_PORT=GPIOA;
+#define AD_OUT_PIN   GPIO_PIN_6
 constexpr auto AD_BUSY_PORT=GPIOB;
 #define AD_BUSY_PIN   GPIO_PIN_6
 

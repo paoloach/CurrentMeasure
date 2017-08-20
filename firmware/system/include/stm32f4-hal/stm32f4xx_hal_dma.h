@@ -213,9 +213,9 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Channel_selection DMA Channel selection
-  * @brief    DMA channel selection 
-  * @{
+/** @brief    DMA channel selection
+    @{
+    @defgroup DMA_Channel_selection DMA Channel selection
   */ 
 #define DMA_CHANNEL_0        ((uint32_t)0x00000000U)  /*!< DMA Channel 0 */
 #define DMA_CHANNEL_1        ((uint32_t)0x02000000U)  /*!< DMA Channel 1 */

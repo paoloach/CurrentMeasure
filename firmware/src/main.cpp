@@ -19,13 +19,13 @@
 #pragma GCC diagnostic ignored "-Wmissing-declarations"
 #pragma GCC diagnostic ignored "-Wreturn-type"
 
-static uint16_t printInt(Point point, uint16_t value);
+static uint16_t printInt(Point point, uint32_t value);
 static uint16_t printActual(uint16_t highSensibility, uint16_t lowSensibility);
+static void printMean();
 static void printGraph();
 
 HX8357::HX8357 * gfx;
 
-extern Sampling sampling;
 extern uint16_t count;
 
 constexpr Point INSTANTANEUS_VALUE(128, 0);
@@ -68,43 +68,6 @@ int main(int argc, char* argv[]) {
 
     trace_printf("System clock: %u Hz\n", SystemCoreClock);
 
-//    trace_printf("HSI_ON: --> %d\n", RCC->CR & 0x1);
-//    trace_printf("HSI_RDY: --> %d\n", (RCC->CR >> 1) & 0x1);
-//    trace_printf("HSI_TRIM: --> %d\n", (RCC->CR >> 3) & 0x1F);
-//    trace_printf("HSI_CAL: --> %d\n", (RCC->CR >> 8) & 0xFF);
-//    trace_printf("HSE_ON: --> %d\n", (RCC->CR >> 16) & 0x1);
-//    trace_printf("HSE_RDY: --> %d\n", (RCC->CR >> 17) & 0x1);
-//    trace_printf("HSE_BYP: --> %d\n", (RCC->CR >> 18) & 0x1);
-//    trace_printf("CSS_ON: --> %d\n", (RCC->CR >> 19) & 0x1);
-//    trace_printf("PLL_ON: --> %d\n", (RCC->CR >> 24) & 0x1);
-//    trace_printf("PLL_RDY: --> %d\n", (RCC->CR >> 25) & 0x1);
-//    trace_printf("PLLIS2_ON: --> %d\n", (RCC->CR >> 26) & 0x1);
-//    trace_printf("PLLIS2_RDY: --> %d\n", (RCC->CR >> 27) & 0x1);
-//
-//    trace_printf("PLLM: --> %d\n", RCC->PLLCFGR & 0x3F);
-//    trace_printf("PLLN: --> %d\n", (RCC->PLLCFGR >> 6) & 0x1FF);
-//    trace_printf("PLLP: --> %d\n", (RCC->PLLCFGR >> 16) & 0x3);
-//    trace_printf("PLLSRC: --> %d\n", (RCC->PLLCFGR >> 22) & 0x1);
-//    trace_printf("PLLQ: --> %d\n", (RCC->PLLCFGR >> 24) & 0xF);
-//
-//    trace_printf("SW: --> %d\n", RCC->CFGR & 3);
-//    trace_printf("SWS: --> %d\n", (RCC->CFGR >> 2) & 3);
-//    trace_printf("HPRE: --> %d\n", (RCC->CFGR >> 4) & 0xF);
-//    trace_printf("PPRE: --> %d\n", (RCC->CFGR >> 10) & 7);
-//    trace_printf("PPRE2: --> %d\n", (RCC->CFGR >> 13) & 7);
-//    trace_printf("RTCPRE: --> %d\n", (RCC->CFGR >> 16) & 0x1F);
-//    trace_printf("MC01: --> %d\n", (RCC->CFGR >> 21) & 3);
-//    trace_printf("I2_SSCR: --> %d\n", (RCC->CFGR >> 23) & 1);
-//    trace_printf("MC01_PRE: --> %d\n", (RCC->CFGR >> 24) & 0x7);
-//    trace_printf("MC02_PRE: --> %d\n", (RCC->CFGR >> 27) & 0x1F);
-//    trace_printf("MC02: --> %d\n", (RCC->CFGR >> 30) & 3);
-//
-//    trace_printf("CR: -->  %08X\n", RCC->CR);
-//    trace_printf("PLLCFGR: -->  %08X\n", RCC->PLLCFGR);
-//    trace_printf("CFGR: -->  %08X\n", RCC->CFGR);
-//    trace_printf("CSR: -->  %08X\n", RCC->CSR);
-//    trace_printf("BDCR: -->  %08X\n", RCC->BDCR);
-
     __HAL_RCC_GPIOA_CLK_ENABLE()
     ;
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -140,14 +103,18 @@ int main(int argc, char* argv[]) {
     CurrentMeasure::start();
     printGraph();
     while (true) {
-        while (!CurrentMeasure::sampleEnd)
-            ;
-        trace_printf("counted: %d\n", count);
-        printGraph();
-        CurrentMeasure::start();
-        auto high = currentMeasure.getHighSensibility();
-        auto low = currentMeasure.getLowSensibility();
-        printActual(high, low);
+        if (CurrentMeasure::meanAvailable) {
+            printMean();
+            CurrentMeasure::meanAvailable = false;
+        }
+        if (CurrentMeasure::sampleEnd) {
+            printGraph();
+            CurrentMeasure::restartAcquire();
+        }
+        if (ADS7841::resultPresent) {
+            ADS7841::resultPresent = false;
+            CurrentMeasure::saveData();
+        }
     }
 }
 
@@ -156,6 +123,11 @@ static void printGraph() {
         uint16_t val = CurrentMeasure::currents[x];
         gfx->drawFastSample(x, val);
     }
+}
+
+static void printMean() {
+    Point p(printInt(INSTANTANEUS_VALUE, CurrentMeasure::mean) * 16 + INSTANTANEUS_VALUE.x, INSTANTANEUS_VALUE.y);
+    gfx->drawString(std::move(p), "   ");
 }
 
 static uint16_t printActual(uint16_t hightSensibility, uint16_t lowSensibility) {
@@ -212,7 +184,7 @@ static uint16_t printActual(uint16_t hightSensibility, uint16_t lowSensibility) 
     return actual;
 }
 
-static uint16_t printInt(Point point, uint16_t value) {
+static uint16_t printInt(Point point, uint32_t value) {
     char buffer[10];
     itoa(value, buffer, 10);
     return gfx->drawString(Point(point), buffer);
