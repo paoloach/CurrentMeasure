@@ -13,6 +13,8 @@
 #include "Timer.h"
 #include "CurrentMeasure.h"
 #include "Sampling.h"
+#include "Buttons.h"
+#include "MessageQueue.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -20,18 +22,17 @@
 #pragma GCC diagnostic ignored "-Wreturn-type"
 
 static uint16_t printInt(Point point, uint32_t value);
-static uint16_t printActual(uint16_t highSensibility, uint16_t lowSensibility);
+static void printTriggerLevel();
 static void printMean();
-static void printGraph();
+static void drawGraph();
 
 HX8357::HX8357 * gfx;
 
-extern uint16_t count;
+constexpr Point INSTANTANEUS_VALUE_POS(128, 0);
+constexpr Point TRIGGER_LABEL_POS(0, 20);
+constexpr Point TRIGGER_VALUE_POS(TRIGGER_LABEL_POS.x+9*16, TRIGGER_LABEL_POS.y);
 
-constexpr Point INSTANTANEUS_VALUE(128, 0);
-constexpr Point MAX_VALUE(128, 24);
-constexpr Point MEAN_VALUE(128, 40);
-constexpr Point TOT(128, 56);
+uint8_t triggerLevelColorValue;
 
 int main(int argc, char* argv[]) {
     trace_puts("Current measure!");
@@ -79,15 +80,7 @@ int main(int argc, char* argv[]) {
     GPIO_InitStructure.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-    __HAL_RCC_GPIOB_CLK_ENABLE()
-    ;
-    // Configure pin in output push/pull mode
-    GPIO_InitStructure.Pin = GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
-    GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
-    GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStructure.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
-
+    Buttons::init();
     timer.start();
 
     currentMeasure.init();
@@ -99,16 +92,56 @@ int main(int argc, char* argv[]) {
     gfx->setBackground(WHITE);
     gfx->setFont(&bigFont);
 
-    gfx->drawString(Point(0, INSTANTANEUS_VALUE.y), "Actual: ");
+    gfx->drawString(Point(0, INSTANTANEUS_VALUE_POS.y), "Actual: ");
     CurrentMeasure::start();
-    printGraph();
+    drawGraph();
+
+    trace_printf("EXTI->IMR = %08X\n", EXTI->IMR);
+    trace_printf("EXTI->RTSR = %08X\n", EXTI->RTSR);
+    trace_printf("EXTI->FTSR = %08X\n", EXTI->FTSR);
+    trace_printf("SYSCFG->EXTICR[0] = %08X\n", SYSCFG->EXTICR[0]);
+    trace_printf("SYSCFG->EXTICR[1] = %08X\n", SYSCFG->EXTICR[1]);
+    trace_printf("SYSCFG->EXTICR[2] = %08X\n", SYSCFG->EXTICR[2]);
+    trace_printf("SYSCFG->EXTICR[3] = %08X\n", SYSCFG->EXTICR[3]);
+
     while (true) {
+        if (!MessageQueue::empty()) {
+            auto message = MessageQueue::get();
+            switch (message.type) {
+            case MessageType::Button1:
+                CurrentMeasure::triggerLevel++;
+                triggerLevelColorValue=255;
+                drawGraph();
+                printTriggerLevel();
+                timer.delayMessage(MessageType::RemoveTrigger, 4000);
+                break;
+            case MessageType::Button3:
+                CurrentMeasure::triggerLevel--;
+                triggerLevelColorValue=255;
+                drawGraph();
+                printTriggerLevel();
+                timer.delayMessage(MessageType::RemoveTrigger, 4000);
+                break;
+            case MessageType::RemoveTrigger:
+                trace_printf("tick %d\n", HAL_GetTick());
+                if(triggerLevelColorValue <30){
+                    triggerLevelColorValue=0;
+                    drawGraph();
+                } else {
+                    triggerLevelColorValue-=30;
+                    timer.delayMessage(MessageType::RemoveTrigger, 500);
+                }
+                printTriggerLevel();
+                break;
+            }
+            MessageQueue::pop();
+        }
         if (CurrentMeasure::meanAvailable) {
             printMean();
             CurrentMeasure::meanAvailable = false;
         }
         if (CurrentMeasure::sampleEnd) {
-            printGraph();
+            drawGraph();
             CurrentMeasure::restartAcquire();
         }
         if (ADS7841::resultPresent) {
@@ -118,75 +151,34 @@ int main(int argc, char* argv[]) {
     }
 }
 
-static void printGraph() {
+static void drawGraph() {
+    uint16_t * samples = CurrentMeasure::readingSamples;
     for (uint16_t x = 0; x < 480; x++) {
-        uint16_t val = CurrentMeasure::currents[x];
-        gfx->drawFastSample(x, val);
+        gfx->drawFastSample(x, *samples);
+        samples++;
     }
 }
 
 static void printMean() {
-    Point p(printInt(INSTANTANEUS_VALUE, CurrentMeasure::mean) * 16 + INSTANTANEUS_VALUE.x, INSTANTANEUS_VALUE.y);
+    gfx->setBackground( WHITE);
+    gfx->setForeground(BLACK);
+    Point p(printInt(INSTANTANEUS_VALUE_POS, CurrentMeasure::mean) * 16 + INSTANTANEUS_VALUE_POS.x, INSTANTANEUS_VALUE_POS.y);
     gfx->drawString(std::move(p), "   ");
 }
 
-static uint16_t printActual(uint16_t hightSensibility, uint16_t lowSensibility) {
-    uint16_t actual;
-    if (lowSensibility < 50) {
-        actual = hightSensibility;
-    } else {
-        actual = lowSensibility;
-    }
-    Point p(printInt(INSTANTANEUS_VALUE, actual) * 16 + INSTANTANEUS_VALUE.x + 16, INSTANTANEUS_VALUE.y);
-    gfx->drawString(Point(p), "(");
-    p.x += 16;
-    p.x += printInt(p, hightSensibility) * 16;
-    gfx->drawString(Point(p), ", ");
-    p.x += 16;
-    p.x += printInt(p, lowSensibility) * 16;
-    gfx->drawString(Point(p), ")   ");
-    p.x += 64;
-    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10) == GPIO_PIN_SET) {
-        gfx->drawString(Point(p), "1");
-    } else {
-        gfx->drawString(Point(p), "0");
-    }
-    p.x += 16;
-    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11) == GPIO_PIN_SET) {
-        gfx->drawString(Point(p), "1");
-    } else {
-        gfx->drawString(Point(p), "0");
-    }
-    p.x += 16;
-    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == GPIO_PIN_SET) {
-        gfx->drawString(Point(p), "1");
-    } else {
-        gfx->drawString(Point(p), "0");
-    }
-    p.x += 16;
-    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13) == GPIO_PIN_SET) {
-        gfx->drawString(Point(p), "1");
-    } else {
-        gfx->drawString(Point(p), "0");
-    }
-    p.x += 16;
-    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == GPIO_PIN_SET) {
-        gfx->drawString(Point(p), "1");
-    } else {
-        gfx->drawString(Point(p), "0");
-    }
-    p.x += 16;
-    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == GPIO_PIN_SET) {
-        gfx->drawString(Point(p), "1");
-    } else {
-        gfx->drawString(Point(p), "0");
-    }
-    return actual;
+static void printTriggerLevel() {
+    gfx->setForeground( Color16Bit(triggerLevelColorValue, 0, 0));
+    gfx->setBackground(BLACK);
+    gfx->drawString(TRIGGER_LABEL_POS,"Trigger: ");
+    auto nChar = printInt(TRIGGER_VALUE_POS, CurrentMeasure::triggerLevel);
+    Point leftTop(TRIGGER_VALUE_POS.x + nChar*16, TRIGGER_VALUE_POS.y);
+    gfx->drawRect(leftTop, 32, 16, BLACK);
 }
 
 static uint16_t printInt(Point point, uint32_t value) {
     char buffer[10];
     itoa(value, buffer, 10);
+
     return gfx->drawString(Point(point), buffer);
 }
 

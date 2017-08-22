@@ -9,6 +9,8 @@
 #include "Timer.h"
 #include "CurrentMeasure.h"
 
+extern uint8_t triggerLevelColorValue;
+
 namespace HX8357 {
 
 #ifdef USR_FSMC
@@ -176,15 +178,18 @@ void HX8357::drawPixelInternal(uint16_t y, uint16_t x, Color16Bit color) {
 }
 
 void HX8357::drawFastSample(uint16_t x, uint16_t value) {
+    uint16_t maxLen = 300;
+    if (triggerLevelColorValue > 0 && x < 200)
+        maxLen=286;
 
-    CaSet::writeData(20, DEFAULT_WIDTH - 1);
+    CaSet::writeData(DEFAULT_WIDTH-maxLen, DEFAULT_WIDTH - 1);
     PaSet::writeData(DEFAULT_HEIGTH - x, DEFAULT_HEIGTH - x);
 
     CS_PORT->BSRR = CS_PIN << 16;
     RegisterBase::writeIndex(static_cast<uint16_t>(REG::RAMWR));
     RS_PORT->BSRR = RS_PIN;
-    auto len = 300 - value;
-    int y = 300;
+    auto len = maxLen - value;
+    int y = maxLen;
     for (int i = 0; i < len; i++, y--) {
         if (y == CurrentMeasure::triggerLevel) {
             RegisterBase::writeDataByte(RED.color);

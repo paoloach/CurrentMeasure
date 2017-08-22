@@ -5,6 +5,7 @@
  *      Author: paolo
  */
 
+#include <algorithm>
 #include <string.h>
 #include "diag/Trace.h"
 
@@ -15,8 +16,11 @@
 
 uint16_t CurrentMeasure::count;
 
-uint16_t CurrentMeasure::currents[480];
-uint16_t CurrentMeasure::pos;
+uint16_t CurrentMeasure::samples1[480];
+uint16_t CurrentMeasure::samples2[480];
+uint16_t * CurrentMeasure::writingSamples;
+uint16_t * CurrentMeasure::readingSamples;
+uint16_t CurrentMeasure::samplePos;
 
 bool CurrentMeasure::sampleEnd;
 bool CurrentMeasure::trigger;
@@ -25,15 +29,17 @@ uint16_t CurrentMeasure::triggerStart;
 uint16_t CurrentMeasure::meanData[1000];
 uint16_t CurrentMeasure::meanPos;
 uint32_t CurrentMeasure::mean;
-bool     CurrentMeasure::meanAvailable;
+bool CurrentMeasure::meanAvailable;
 TIM_HandleTypeDef CurrentMeasure::handle;
 
 void CurrentMeasure::init() {
     __HAL_RCC_TIM2_CLK_ENABLE()
     ;
     ADS7841::init();
+    writingSamples = samples1;
+    readingSamples = samples2;
 
-    pos = 0;
+    samplePos = 0;
 
     handle.Instance = TIM2;
     handle.Init.Prescaler = 168;
@@ -55,8 +61,8 @@ void CurrentMeasure::start() {
     __HAL_RCC_GPIOC_CLK_ENABLE()
     ;
 
-    pos = 0;
-    meanPos=0;
+    samplePos = 0;
+    meanPos = 0;
     sampleEnd = false;
     trigger = false;
     triggerLevel = 12;
@@ -65,7 +71,7 @@ void CurrentMeasure::start() {
 }
 
 void CurrentMeasure::restartAcquire() {
-    pos = 0;
+    samplePos = 0;
     sampleEnd = false;
     trigger = false;
 }
@@ -78,39 +84,39 @@ void CurrentMeasure::saveData() {
     } else {
         current = lowSens;
     }
-    currents[pos] = current;
-    if (pos < 480) {
-        if (pos < triggerStart || trigger) {
-            pos++;
+    writingSamples[samplePos] = current;
+    if (samplePos < 480) {
+        if (samplePos < triggerStart || trigger) {
+            samplePos++;
         } else {
             if (current < triggerLevel) {
-                memmove(currents, currents + 1, sizeof(uint16_t) * (triggerStart));
+                memmove(writingSamples, writingSamples + 1, sizeof(uint16_t) * (triggerStart));
             } else {
                 trigger = true;
-                pos++;
+                samplePos++;
             }
         }
-        if (pos == 480) {
+        if (samplePos == 480) {
+            std::swap(readingSamples, writingSamples);
             sampleEnd = true;
         }
     }
     meanData[meanPos] = current;
     meanPos++;
-    if (meanPos == 1000){
-        mean=0;
-        for(auto data: meanData){
+    if (meanPos == 1000) {
+        mean = 0;
+        for (auto data : meanData) {
             mean += data;
         }
-        meanPos =0;
-        meanAvailable=true;
+        meanPos = 0;
+        meanAvailable = true;
     }
 }
 
 extern "C" {
 
 void TIM2_IRQHandler(void) {
-    if (__HAL_TIM_GET_FLAG(&CurrentMeasure::handle, TIM_FLAG_UPDATE) != RESET)      //In case other interrupts are also running
-            {
+    if (__HAL_TIM_GET_FLAG(&CurrentMeasure::handle, TIM_FLAG_UPDATE) != RESET) {
         if (__HAL_TIM_GET_ITSTATUS(&CurrentMeasure::handle, TIM_IT_UPDATE) != RESET) {
             __HAL_TIM_CLEAR_FLAG(&CurrentMeasure::handle, TIM_FLAG_UPDATE);
             ADS7841::get();

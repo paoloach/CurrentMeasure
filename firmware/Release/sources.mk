@@ -28,4 +28,9 @@ CPP_DEPS :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 src \
+system/src/cmsis \
+system/src/cortexm \
+system/src/diag \
+system/src/newlib \
+system/src/stm32f4-hal \
 

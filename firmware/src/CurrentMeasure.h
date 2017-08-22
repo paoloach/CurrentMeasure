@@ -10,6 +10,12 @@
 
 #include <string.h>
 #include "ADS7841.h"
+extern "C" {
+
+void TIM2_IRQHandler(void);
+}
+
+
 
 class CurrentMeasure {
 public:
@@ -34,18 +40,26 @@ public:
         }
     static void start() ;
     static void restartAcquire() ;
-    static uint16_t currents[480];
-    static uint16_t meanData[1000];
-    static uint16_t meanPos;
+
+
+    static uint16_t * readingSamples;
     static uint32_t mean;
     static bool     meanAvailable;
-    static uint16_t pos;
-    static TIM_HandleTypeDef handle;
     static bool     sampleEnd;
     static bool     trigger;
     static uint16_t triggerStart;
     static uint16_t triggerLevel;
     static uint16_t count;
+private:
+    static uint16_t samples1[480];
+    static uint16_t samples2[480];
+    static uint16_t * writingSamples;
+    static uint16_t meanData[1000];
+    static uint16_t meanPos;
+    static uint16_t samplePos;
+    static TIM_HandleTypeDef handle;
+
+    friend void TIM2_IRQHandler();
 };
 
 #endif /* CURRENTMEASURE_H_ */

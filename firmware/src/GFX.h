@@ -37,7 +37,7 @@ extern const Font smallFont;
 class Color16Bit {
 public:
     constexpr Color16Bit(uint8_t red, uint8_t green, uint8_t blue) :
-            color((((uint16_t) red & 0xF8) << 8) | (((uint16_t) green & 0xFC) << 3) | (((uint16_t) blue & 0xF8) >> 3)) {
+            color((((uint16_t) (255-blue) & 0xF8) << 8) | (((uint16_t) (255-green) & 0xFC) << 3) | (((uint16_t) (255-red) & 0xF8) >> 3)) {
     }
 
     bool operator==(Color16Bit & a) {
@@ -51,11 +51,11 @@ public:
 
 };
 
-constexpr Color16Bit WHITE(0, 0, 0);
-constexpr Color16Bit BLACK(255, 255, 255);
-constexpr Color16Bit DARK_GRAY(192, 192, 192);
+constexpr Color16Bit WHITE(255, 255, 255);
+constexpr Color16Bit BLACK(0, 0, 0);
+constexpr Color16Bit DARK_GRAY(64, 64, 64);
 constexpr Color16Bit LIGHT_GRAY(128, 128, 128);
-constexpr Color16Bit RED(255, 255, 0);
+constexpr Color16Bit RED(255, 0, 0);
 
 class Color6Bit {
 private:
@@ -477,6 +477,17 @@ public:
         while (*s != 0) {
             drawChar(p, *s);
             p.x += font->xSize;
+            s++;
+            c++;
+        }
+        return c;
+    }
+    uint16_t drawString(const Point & p, const char * s) {
+        uint16_t c=0;
+        Point point(p);
+        while (*s != 0) {
+            drawChar(point, *s);
+            point.x += font->xSize;
             s++;
             c++;
         }

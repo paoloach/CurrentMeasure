@@ -15,6 +15,7 @@ extern "C" void HAL_IncTick(void);
 // ----------------------------------------------------------------------------
 
 volatile Timer::ticks_t Timer::ms_delayCount;
+std::vector<std::tuple<uint32_t, Message>> Timer::messages;
 
 // ----------------------------------------------------------------------------
 
