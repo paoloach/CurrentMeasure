@@ -10,6 +10,7 @@
 #include "ADS7841.h"
 #include "Pins.h"
 #include "diag/Trace.h"
+#include "MessageQueue.h"
 
 SPI_HandleTypeDef ADS7841::handle;
 uint8_t ADS7841::TxBuffer[6];
@@ -18,7 +19,6 @@ DMA_HandleTypeDef ADS7841::txDMA;
 DMA_HandleTypeDef ADS7841::rxDMA;
 uint16_t ADS7841::resultHigh;
 uint16_t ADS7841::resultLow;
-bool ADS7841::resultPresent;
 
 int line;
 
@@ -126,8 +126,8 @@ void ADS7841::init() {
     HAL_DMA_Init(&rxDMA);
     HAL_DMA_Init(&txDMA);
 
-    rxDMA.Instance->CR |= DMA_IT_TC | DMA_IT_TE | DMA_IT_DME;
-    txDMA.Instance->CR |= DMA_IT_TC | DMA_IT_TE | DMA_IT_DME;
+    rxDMA.Instance->CR |= DMA_IT_TC ;
+    txDMA.Instance->CR |= DMA_IT_TC ;
     HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 1, 1);
     HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 
@@ -140,8 +140,8 @@ void ADS7841::init() {
 
 void ADS7841::get() {
     AD_CS_PORT->BSRR = AD_CS_PIN << 16;
-    rxDMA.Instance->CR |= DMA_IT_TC | DMA_IT_TE | DMA_IT_DME;
-    txDMA.Instance->CR |= DMA_IT_TC | DMA_IT_TE | DMA_IT_DME;
+    rxDMA.Instance->CR |= DMA_IT_TC ;
+    txDMA.Instance->CR |= DMA_IT_TC;
     rxDMA.Instance->NDTR = 6;
     txDMA.Instance->NDTR = 6;
 
@@ -149,44 +149,31 @@ void ADS7841::get() {
     txDMA.Instance->PAR = (uint32_t) (&handle.Instance->DR);
     rxDMA.Instance->M0AR = (uint32_t) RxBuffer;
     txDMA.Instance->M0AR = (uint32_t) TxBuffer;
-    rxDMA.Instance->CR |= DMA_SxCR_EN;
-    txDMA.Instance->CR |= DMA_SxCR_EN;
+
 
     /* Enable Tx DMA Request */
     SET_BIT(handle.Instance->CR2, SPI_CR2_TXDMAEN);
     SET_BIT(handle.Instance->CR2, SPI_CR2_RXDMAEN);
+
+    rxDMA.Instance->CR |= DMA_SxCR_EN;
+    txDMA.Instance->CR |= DMA_SxCR_EN;
 }
 
 extern "C" {
 // RX
 void DMA2_Stream0_IRQHandler(void) {
-    if (DMA2->LISR & DMA_FLAG_DMEIF0_4) {
-        DMA2->LIFCR = DMA_FLAG_DMEIF0_4;
-    } else if (DMA2->LISR & DMA_FLAG_FEIF0_4) {
-        DMA2->LIFCR = DMA_FLAG_FEIF0_4;
-    } else if (DMA2->LISR & DMA_FLAG_TEIF0_4) {
-        DMA2->LIFCR = DMA_FLAG_TEIF0_4;
-    } else if (DMA2->LISR & DMA_FLAG_HTIF0_4) {
-        DMA2->LIFCR = DMA_FLAG_HTIF0_4;
-    } else if (DMA2->LISR & DMA_FLAG_TCIF0_4) {
+    if (DMA2->LISR & DMA_FLAG_TCIF0_4) {
         DMA2->LIFCR = DMA_FLAG_TCIF0_4;
         AD_CS_PORT->BSRR = AD_CS_PIN;
         ADS7841::resultHigh = (((uint16_t) ADS7841::RxBuffer[1]) << 4) + (((uint16_t) ADS7841::RxBuffer[2]) >> 4);
         ADS7841::resultLow = (((uint16_t) ADS7841::RxBuffer[4]) << 4) + (((uint16_t) ADS7841::RxBuffer[5]) >> 4);
-        ADS7841::resultPresent = true;
+        MessageQueue::addMessage(Message(MessageType::NewAdcSample));
+
     }
 }
 // TX
 void DMA2_Stream3_IRQHandler(void) {
-    if (DMA2->LISR & DMA_FLAG_DMEIF3_7) {
-        DMA2->LIFCR = DMA_FLAG_DMEIF3_7;
-    } else if (DMA2->LISR & DMA_FLAG_FEIF3_7) {
-        DMA2->LIFCR = DMA_FLAG_FEIF3_7;
-    } else if (DMA2->LISR & DMA_FLAG_TEIF3_7) {
-        DMA2->LIFCR = DMA_FLAG_TEIF3_7;
-    } else if (DMA2->LISR & DMA_FLAG_HTIF3_7) {
-        DMA2->LIFCR = DMA_FLAG_HTIF3_7;
-    } else if (DMA2->LISR & DMA_FLAG_TCIF3_7) {
+    if (DMA2->LISR & DMA_FLAG_TCIF3_7) {
         DMA2->LIFCR = DMA_FLAG_TCIF3_7;
     }
 

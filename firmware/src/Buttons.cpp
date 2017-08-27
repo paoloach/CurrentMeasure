@@ -40,7 +40,7 @@ extern "C" {
 void EXTI15_10_IRQHandler(void) {
     if (__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_10)) {
         __HAL_GPIO_EXTI_CLEAR_FLAG(GPIO_PIN_10);
-        MessageQueue::addMessage(Message(MessageType::Button1));
+        MessageQueue::addMessage(Message(MessageType::ButtonUp));
     }
     if (__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_11)) {
         __HAL_GPIO_EXTI_CLEAR_FLAG(GPIO_PIN_11);
@@ -48,7 +48,7 @@ void EXTI15_10_IRQHandler(void) {
     }
     if (__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_12)) {
         __HAL_GPIO_EXTI_CLEAR_FLAG(GPIO_PIN_12);
-        MessageQueue::addMessage(Message(MessageType::Button3));
+        MessageQueue::addMessage(Message(MessageType::ButtonDown));
     }
     if (__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_13)) {
         __HAL_GPIO_EXTI_CLEAR_FLAG(GPIO_PIN_13);

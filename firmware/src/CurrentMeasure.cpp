@@ -9,6 +9,7 @@
 #include <string.h>
 #include "diag/Trace.h"
 
+#include "MessageQueue.h"
 #include "CurrentMeasure.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx.h"
@@ -16,20 +17,18 @@
 
 uint16_t CurrentMeasure::count;
 
-uint16_t CurrentMeasure::samples1[480];
-uint16_t CurrentMeasure::samples2[480];
-uint16_t * CurrentMeasure::writingSamples;
-uint16_t * CurrentMeasure::readingSamples;
+Current CurrentMeasure::samples1[480];
+Current CurrentMeasure::samples2[480];
+Current * CurrentMeasure::writingSamples;
+Current * CurrentMeasure::readingSamples;
 uint16_t CurrentMeasure::samplePos;
 
-bool CurrentMeasure::sampleEnd;
 bool CurrentMeasure::trigger;
 uint16_t CurrentMeasure::triggerLevel;
 uint16_t CurrentMeasure::triggerStart;
-uint16_t CurrentMeasure::meanData[1000];
+uint32_t CurrentMeasure::meanUsed;
 uint16_t CurrentMeasure::meanPos;
 uint32_t CurrentMeasure::mean;
-bool CurrentMeasure::meanAvailable;
 TIM_HandleTypeDef CurrentMeasure::handle;
 
 void CurrentMeasure::init() {
@@ -44,7 +43,7 @@ void CurrentMeasure::init() {
     handle.Instance = TIM2;
     handle.Init.Prescaler = 168;
     handle.Init.CounterMode = TIM_COUNTERMODE_UP;
-    handle.Init.Period = 1000;
+    handle.Init.Period = 100;
     handle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     handle.Channel = HAL_TIM_ACTIVE_CHANNEL_CLEARED;
     handle.Lock = HAL_UNLOCKED;
@@ -52,7 +51,6 @@ void CurrentMeasure::init() {
 
     HAL_NVIC_SetPriority(TIM2_IRQn, 0, 1);
     HAL_NVIC_EnableIRQ(TIM2_IRQn);
-    sampleEnd = false;
 }
 
 void CurrentMeasure::start() {
@@ -63,7 +61,6 @@ void CurrentMeasure::start() {
 
     samplePos = 0;
     meanPos = 0;
-    sampleEnd = false;
     trigger = false;
     triggerLevel = 12;
     triggerStart = 50;
@@ -72,18 +69,22 @@ void CurrentMeasure::start() {
 
 void CurrentMeasure::restartAcquire() {
     samplePos = 0;
-    sampleEnd = false;
     trigger = false;
 }
 
+constexpr Current threashold(70);
+
 void CurrentMeasure::saveData() {
-    uint16_t current;
+    Current current;
+    volatile auto a = ADS7841::resultHigh;
+    volatile auto b = ADS7841::resultLow;
     auto lowSens = getLowSensibility();
-    if (lowSens < 70) {
+    if (lowSens < threashold) {
         current = getHighSensibility();
     } else {
         current = lowSens;
     }
+    volatile auto c = current.value;
     writingSamples[samplePos] = current;
     if (samplePos < 480) {
         if (samplePos < triggerStart || trigger) {
@@ -98,23 +99,22 @@ void CurrentMeasure::saveData() {
         }
         if (samplePos == 480) {
             std::swap(readingSamples, writingSamples);
-            sampleEnd = true;
+            MessageQueue::addMessage(Message(MessageType::SampleEnd));
         }
     }
-    meanData[meanPos] = current;
+    meanUsed += current.value;
     meanPos++;
     if (meanPos == 1000) {
-        mean = 0;
-        for (auto data : meanData) {
-            mean += data;
-        }
+        mean = meanUsed;
         meanPos = 0;
-        meanAvailable = true;
+        meanUsed =0;
+        MessageQueue::addMessage(Message(MessageType::MeanAvailable));
     }
 }
 
 extern "C" {
 
+// Called every 100uS
 void TIM2_IRQHandler(void) {
     if (__HAL_TIM_GET_FLAG(&CurrentMeasure::handle, TIM_FLAG_UPDATE) != RESET) {
         if (__HAL_TIM_GET_ITSTATUS(&CurrentMeasure::handle, TIM_IT_UPDATE) != RESET) {

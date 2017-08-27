@@ -45,7 +45,7 @@ public:
         auto tick = HAL_GetTick();
         for (Messages::iterator it = messages.begin(); it != messages.end(); it++) {
             if (std::get<0>(*it) <= tick) {
-                MessageQueue::addMessage(std::get<1>(*it));
+                MessageQueue::addMessage(std::move(std::get<1>(*it)));
                 messages.erase(it);
                 break;
             }

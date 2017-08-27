@@ -30,55 +30,6 @@ void HX8357::init() {
     RESET_PORT->BSRR = RESET_PIN << 16;
     Timer::sleep(200);
     RESET_PORT->BSRR = RESET_PIN;
-//    trace_printf("FSMC:\n");
-//    trace_printf(" GPIOB->MODER = %08X\n", GPIOB->MODER);
-//    trace_printf(" GPIOB->OTYPER = %08X\n", GPIOB->OTYPER);
-//    trace_printf(" GPIOB->OSPEEDR = %08X\n", GPIOB->OSPEEDR);
-//    trace_printf(" GPIOB->PUPDR = %08X\n", GPIOB->PUPDR);
-//    trace_printf(" GPIOB->LCKR = %08X\n", GPIOB->LCKR);
-//    trace_printf(" GPIOB->AFR[0] = %08X\n", GPIOB->AFR[0]);
-//    trace_printf(" GPIOB->AFR[1] = %08X\n", GPIOB->AFR[1]);
-
-//    trace_printf ("FSMC:\n");
-//    trace_printf (" GPIOD->MODER = %08X\n",GPIOD->MODER);
-//    trace_printf (" GPIOD->OTYPER = %08X\n",GPIOD->OTYPER);
-//    trace_printf (" GPIOD->OSPEEDR = %08X\n",GPIOD->OSPEEDR);
-//    trace_printf (" GPIOD->PUPDR = %08X\n",GPIOD->PUPDR);
-//    trace_printf (" GPIOD->LCKR = %08X\n",GPIOD->LCKR);
-//    trace_printf (" GPIOD->AFR[0] = %08X\n",GPIOD->AFR[0]);
-//    trace_printf (" GPIOD->AFR[1] = %08X\n",GPIOD->AFR[1]);
-//
-//    trace_printf (" GPIOE->MODER = %08X\n",GPIOE->MODER);
-//    trace_printf (" GPIOE->OTYPER = %08X\n",GPIOE->OTYPER);
-//    trace_printf (" GPIOE->OSPEEDR = %08X\n",GPIOE->OSPEEDR);
-//    trace_printf (" GPIOE->PUPDR = %08X\n",GPIOE->PUPDR);
-//    trace_printf (" GPIOE->LCKR = %08X\n",GPIOE->LCKR);
-//    trace_printf (" GPIOE->AFR[0] = %08X\n",GPIOE->AFR[0]);
-//    trace_printf (" GPIOE->AFR[1] = %08X\n",GPIOE->AFR[1]);
-
-//    while (true) {
-//        for (int i = 0; i < 256; i++) {
-//            *LCD_REG = i;
-//            for (int j = 0; j < 5; j++)
-//                __asm(
-//                        "nop\n"
-//
-//                );
-//            *LCD_DATA = 0xAAAA;
-//            for (int j = 0; j < 15; j++)
-//                __asm(
-//                        "nop\n"
-//
-//                );
-//            *LCD_DATA = 0xAAAA;
-//            for (int j = 0; j < 15; j++)
-//                __asm(
-//                        "nop\n"
-//
-//                );
-//
-//        }
-//    }
 
     if (driver == LcdID::ID_HX8357B) {
 

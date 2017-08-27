@@ -12,7 +12,6 @@
 #include "HX8357.h"
 #include "Timer.h"
 #include "CurrentMeasure.h"
-#include "Sampling.h"
 #include "Buttons.h"
 #include "MessageQueue.h"
 
@@ -23,16 +22,19 @@
 
 static uint16_t printInt(Point point, uint32_t value);
 static void printTriggerLevel();
+static void printDiv();
 static void printMean();
 static void drawGraph();
 
 HX8357::HX8357 * gfx;
 
 constexpr Point INSTANTANEUS_VALUE_POS(128, 0);
+constexpr Point DIV_VALUE_POS(256, 0);
 constexpr Point TRIGGER_LABEL_POS(0, 20);
-constexpr Point TRIGGER_VALUE_POS(TRIGGER_LABEL_POS.x+9*16, TRIGGER_LABEL_POS.y);
+constexpr Point TRIGGER_VALUE_POS(TRIGGER_LABEL_POS.x + 9 * 16, TRIGGER_LABEL_POS.y);
 
 uint8_t triggerLevelColorValue;
+uint8_t msPerDiv = 5;
 
 int main(int argc, char* argv[]) {
     trace_puts("Current measure!");
@@ -93,7 +95,7 @@ int main(int argc, char* argv[]) {
     gfx->setFont(&bigFont);
 
     gfx->drawString(Point(0, INSTANTANEUS_VALUE_POS.y), "Actual: ");
-    CurrentMeasure::start();
+
     drawGraph();
 
     trace_printf("EXTI->IMR = %08X\n", EXTI->IMR);
@@ -103,32 +105,48 @@ int main(int argc, char* argv[]) {
     trace_printf("SYSCFG->EXTICR[1] = %08X\n", SYSCFG->EXTICR[1]);
     trace_printf("SYSCFG->EXTICR[2] = %08X\n", SYSCFG->EXTICR[2]);
     trace_printf("SYSCFG->EXTICR[3] = %08X\n", SYSCFG->EXTICR[3]);
-
+    printDiv();
+    CurrentMeasure::start();
     while (true) {
         if (!MessageQueue::empty()) {
             auto message = MessageQueue::get();
             switch (message.type) {
-            case MessageType::Button1:
+            case MessageType::RequestNewSample:
+                ADS7841::get();
+                break;
+            case MessageType::NewAdcSample:
+                CurrentMeasure::saveData();
+                break;
+            case MessageType::MeanAvailable:
+                printMean();
+                break;
+            case MessageType::SampleEnd:
+                drawGraph();
+                CurrentMeasure::restartAcquire();
+                break;
+            case MessageType::ButtonUp:
                 CurrentMeasure::triggerLevel++;
-                triggerLevelColorValue=255;
+                triggerLevelColorValue = 255;
                 drawGraph();
                 printTriggerLevel();
                 timer.delayMessage(MessageType::RemoveTrigger, 4000);
                 break;
-            case MessageType::Button3:
-                CurrentMeasure::triggerLevel--;
-                triggerLevelColorValue=255;
-                drawGraph();
-                printTriggerLevel();
-                timer.delayMessage(MessageType::RemoveTrigger, 4000);
+            case MessageType::ButtonDown:
+                if (CurrentMeasure::triggerLevel > 0) {
+                    CurrentMeasure::triggerLevel--;
+                    triggerLevelColorValue = 255;
+                    drawGraph();
+                    printTriggerLevel();
+                    timer.delayMessage(MessageType::RemoveTrigger, 4000);
+                }
                 break;
             case MessageType::RemoveTrigger:
                 trace_printf("tick %d\n", HAL_GetTick());
-                if(triggerLevelColorValue <30){
-                    triggerLevelColorValue=0;
+                if (triggerLevelColorValue < 30) {
+                    triggerLevelColorValue = 0;
                     drawGraph();
                 } else {
-                    triggerLevelColorValue-=30;
+                    triggerLevelColorValue -= 30;
                     timer.delayMessage(MessageType::RemoveTrigger, 500);
                 }
                 printTriggerLevel();
@@ -136,42 +154,37 @@ int main(int argc, char* argv[]) {
             }
             MessageQueue::pop();
         }
-        if (CurrentMeasure::meanAvailable) {
-            printMean();
-            CurrentMeasure::meanAvailable = false;
-        }
-        if (CurrentMeasure::sampleEnd) {
-            drawGraph();
-            CurrentMeasure::restartAcquire();
-        }
-        if (ADS7841::resultPresent) {
-            ADS7841::resultPresent = false;
-            CurrentMeasure::saveData();
-        }
     }
 }
 
 static void drawGraph() {
-    uint16_t * samples = CurrentMeasure::readingSamples;
+    Current * samples = CurrentMeasure::readingSamples;
     for (uint16_t x = 0; x < 480; x++) {
-        gfx->drawFastSample(x, *samples);
+        gfx->drawFastSample(x, samples->value);
         samples++;
     }
 }
 
 static void printMean() {
-    gfx->setBackground( WHITE);
+    gfx->setBackground(WHITE);
     gfx->setForeground(BLACK);
     Point p(printInt(INSTANTANEUS_VALUE_POS, CurrentMeasure::mean) * 16 + INSTANTANEUS_VALUE_POS.x, INSTANTANEUS_VALUE_POS.y);
     gfx->drawString(std::move(p), "   ");
 }
 
+static void printDiv() {
+    gfx->setBackground(WHITE);
+    gfx->setForeground(BLACK);
+    Point p(printInt(DIV_VALUE_POS, msPerDiv) * 16 + DIV_VALUE_POS.x, DIV_VALUE_POS.y);
+    gfx->drawString(std::move(p), "ms/div");
+}
+
 static void printTriggerLevel() {
-    gfx->setForeground( Color16Bit(triggerLevelColorValue, 0, 0));
+    gfx->setForeground(Color16Bit(triggerLevelColorValue, 0, 0));
     gfx->setBackground(BLACK);
-    gfx->drawString(TRIGGER_LABEL_POS,"Trigger: ");
+    gfx->drawString(TRIGGER_LABEL_POS, "Trigger: ");
     auto nChar = printInt(TRIGGER_VALUE_POS, CurrentMeasure::triggerLevel);
-    Point leftTop(TRIGGER_VALUE_POS.x + nChar*16, TRIGGER_VALUE_POS.y);
+    Point leftTop(TRIGGER_VALUE_POS.x + nChar * 16, TRIGGER_VALUE_POS.y);
     gfx->drawRect(leftTop, 32, 16, BLACK);
 }
 
